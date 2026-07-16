@@ -1,0 +1,149 @@
+export interface AirQualityData {
+  aqi: number | null;
+  pm25: number | null;
+  pm10: number | null;
+  carbonMonoxide: number | null;
+  nitrogenDioxide: number | null;
+  ozone: number | null;
+  lastUpdated: string | null;
+  timezone: string | null;
+}
+
+export interface AirQualityHistoryPoint {
+  time: string;
+  aqi: number | null;
+  pm25: number | null;
+  pm10: number | null;
+}
+
+async function fetchAirQualitySeries(
+  latitude: number,
+  longitude: number
+): Promise<{
+  timezone?: string;
+  hourly?: {
+    time?: string[];
+    us_aqi?: (number | null)[];
+    pm2_5?: (number | null)[];
+    pm10?: (number | null)[];
+    carbon_monoxide?: (number | null)[];
+    nitrogen_dioxide?: (number | null)[];
+    ozone?: (number | null)[];
+  };
+}> {
+  const url = new URL(
+    "https://air-quality-api.open-meteo.com/v1/air-quality"
+  );
+
+  url.searchParams.set("latitude", latitude.toString());
+  url.searchParams.set("longitude", longitude.toString());
+  url.searchParams.set(
+    "hourly",
+    "us_aqi,pm2_5,pm10,carbon_monoxide,nitrogen_dioxide,ozone"
+  );
+  url.searchParams.set("timezone", "auto");
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Air quality API request failed with status ${response.status}`
+    );
+  }
+
+  return (await response.json()) as {
+    timezone?: string;
+    hourly?: {
+      time?: string[];
+      us_aqi?: (number | null)[];
+      pm2_5?: (number | null)[];
+      pm10?: (number | null)[];
+      carbon_monoxide?: (number | null)[];
+      nitrogen_dioxide?: (number | null)[];
+      ozone?: (number | null)[];
+    };
+  };
+}
+
+function getLatestValue(values?: (number | null)[]): number | null {
+  if (!values || values.length === 0) {
+    return null;
+  }
+
+  for (let i = values.length - 1; i >= 0; i--) {
+    const value = values[i];
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+export async function getAirQuality(
+  latitude: number,
+  longitude: number
+): Promise<AirQualityData> {
+  try {
+    const data = await fetchAirQualitySeries(latitude, longitude);
+    const hourly = data.hourly;
+    const timeSeries = hourly?.time ?? [];
+
+    return {
+      aqi: getLatestValue(hourly?.us_aqi),
+      pm25: getLatestValue(hourly?.pm2_5),
+      pm10: getLatestValue(hourly?.pm10),
+      carbonMonoxide: getLatestValue(hourly?.carbon_monoxide),
+      nitrogenDioxide: getLatestValue(hourly?.nitrogen_dioxide),
+      ozone: getLatestValue(hourly?.ozone),
+      lastUpdated: timeSeries.length > 0 ? timeSeries[timeSeries.length - 1] : null,
+      timezone: data.timezone ?? null,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Unable to fetch air quality data: ${error.message}`);
+    }
+
+    throw new Error("Unable to fetch air quality data.");
+  }
+}
+
+export async function getAirQualityHistory(
+  latitude: number,
+  longitude: number
+): Promise<AirQualityHistoryPoint[]> {
+  try {
+    const data = await fetchAirQualitySeries(latitude, longitude);
+    const hourly = data.hourly;
+    const times = hourly?.time ?? [];
+    const aqiValues = hourly?.us_aqi ?? [];
+    const pm25Values = hourly?.pm2_5 ?? [];
+    const pm10Values = hourly?.pm10 ?? [];
+
+    if (times.length === 0) {
+      return [];
+    }
+
+    const startIndex = Math.max(0, times.length - 24);
+
+    return times.slice(startIndex).map((time, index) => ({
+      time: time.split("T")[1]?.slice(0, 5) ?? time,
+      aqi: aqiValues[startIndex + index] ?? null,
+      pm25: pm25Values[startIndex + index] ?? null,
+      pm10: pm10Values[startIndex + index] ?? null,
+    }));
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Unable to fetch air quality history: ${error.message}`);
+    }
+
+    throw new Error("Unable to fetch air quality history.");
+  }
+}

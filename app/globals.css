@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -127,4 +128,22 @@
   html {
     @apply font-mono;
   }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+section[id], [id] {
+  scroll-margin-top: 96px;
+}
+
+.leaflet-container {
+  background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: rgba(248, 250, 252, 0.97);
+  color: #0f172a;
 }

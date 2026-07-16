@@ -19,7 +19,7 @@ const stages = [
 
 export default function Architecture() {
   return (
-    <section className="rounded-[2rem] border border-slate-800 bg-slate-950 px-6 py-10 text-slate-100 shadow-2xl shadow-black/20 sm:px-8 lg:px-10">
+    <section id="architecture" className="rounded-[2rem] border border-slate-800 bg-slate-950 px-6 py-10 text-slate-100 shadow-2xl shadow-black/20 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-500">
