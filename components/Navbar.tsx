@@ -8,6 +8,7 @@ export default function Navbar() {
   const links = [
     { label: "Dashboard", href: "#dashboard" },
     { label: "Heatmap", href: "#heatmap" },
+    { label: "Dataset", href: "#dataset-generator" },
     { label: "Operations", href: "#operations" },
     { label: "Historical", href: "#historical" },
   ];

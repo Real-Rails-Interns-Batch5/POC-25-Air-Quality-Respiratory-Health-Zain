@@ -7,6 +7,7 @@ import DashboardPreview from "@/components/DashboardPreview";
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import HistoricalAnalytics from "@/components/HistoricalAnalytics";
+import DatasetGenerator from "@/components/DatasetGenerator";
 import PollutionHeatmapSection from "@/components/PollutionHeatmapSection";
 import { getAirQuality, getAirQualityHistory, type AirQualityData, type AirQualityHistoryPoint } from "@/lib/airQuality";
 import { cities, type City } from "@/lib/cities";
@@ -98,6 +99,7 @@ export default function Home() {
           weatherLoading={weatherLoading}
           lastSuccessfulFetch={lastSuccessfulFetch}
         />
+        <DatasetGenerator />
         <HistoricalAnalytics />
       </div>
       <Footer />

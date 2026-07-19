@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 
 type ScrollLinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
-  href: `#${string}`;
+  href: string;
 };
 
 export default function ScrollLink({ href, onClick, ...props }: ScrollLinkProps) {
